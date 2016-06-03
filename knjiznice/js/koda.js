@@ -31,10 +31,28 @@ function getSessionId() {
  * @return ehrId generiranega pacienta
  */
 function generirajPodatke(stPacienta) {
-  ehrId = "";
-
-  // TODO: Potrebno implementirati
-
+  var ehrId = "";
+  var ime, priimek, starost, visina, ciljnaTeza, trenTeza, datum;
+  switch(stPacienta) {
+    case 1:
+      ehrId = "12345678-1234-1234-1234-123456789abc";
+      ime = "Janez";
+      priimek = "Novak";
+      starost = 40;
+      visina = 160;
+      ciljnaTeza = 100;
+      
+      
+      break;
+    case 2:
+      ehrId = "12345678-1234-1234-1234-123456789def";
+      
+      break;
+    case 3:
+      ehrId = "12345678-1234-1234-1234-123456789ghi";
+      
+      break;
+  }
   return ehrId;
 }
 
