@@ -162,7 +162,8 @@ function dodajMeritevTeze() {
 
 function preberiEHR() {
 	sessionId = getSessionId();
-
+  
+  var zacetnaTeza, ciljnaTeza;
 	var ehrId = $("#preberiEHRid").val();
 
 	if (!ehrId || ehrId.trim().length == 0) {
@@ -175,9 +176,17 @@ function preberiEHR() {
 	    	headers: {"Ehr-Session": sessionId},
 	    	success: function (data) {
 				var party = data.party;
+				for (i in party.partyAdditionalInfo) {
+			    if (party.partyAdditionalInfo[i].key == "goalWeight") {
+			       ciljnaTeza = party.partyAdditionalInfo[i].value;
+			    }
+			    if (party.partyAdditionalInfo[i].key == "currWeigth") {
+			       zacetnaTeza = party.partyAdditionalInfo[i].value;
+			    }
+  			}
 				$("#rezultatMeritev").html("<br/><span>Pridobivanje " +
           "podatkov za osebo <b>'" + party.firstNames +
-          " " + party.lastNames + "'</b>.</span><br/><br/>");
+          " " + party.lastNames + "'</b>.</span><span> Teža ob prijavi: <b>" + zacetnaTeza + "</b> kg. Želena teža: <b>" + ciljnaTeza + "</b> kg.</span><br/><br/>");
 				$.ajax({
 					    url: baseUrl + "/view/" + ehrId + "/" + "weight",
 				    type: 'GET',
@@ -248,8 +257,11 @@ function pridobiProcent() {
   sessionId = getSessionId();
 
 	var ehrId = $("#preberiEHRid").val();
+	var ciljnaTeza = 0;
+	var zacetnaTeza = 0;;
 	var latestWeight;
-	var lastDate, currDate;
+	var prevDate, currDate;
+	var procent;
 
 	if (ehrId || ehrId.trim().length != 0) {
 		$.ajax({
@@ -257,40 +269,102 @@ function pridobiProcent() {
 	    	type: 'GET',
 	    	headers: {"Ehr-Session": sessionId},
 	    	success: function (data) {
-				var party = data.party;
-				$.ajax({
-					    url: baseUrl + "/view/" + ehrId + "/" + "weight",
-				    type: 'GET',
-				    headers: {"Ehr-Session": sessionId},
-				    success: function (res) {
-				    	if (res.length > 0) {
-				    	    lastDate = new Date(res[0].time);
-				    	    latestWeight = res[0].weight;
-					        for (var i in res) {
-					          currDate = new Date(res[i].time);
-					          if (lastDate < currDate) {
-					            lastDate = currDate;
-					            latestWeight = res[i].weigth;
-					          }
-					        }
-				    	}
-				    },
-				    error: function() {
-				    	console.log("Error on getting latest date weight")
-				    }
-				});
+				  var party = data.party;
+				  
+				    for (i in party.partyAdditionalInfo) {
+  				    if (party.partyAdditionalInfo[i].key == "goalWeight") {
+  				       ciljnaTeza = party.partyAdditionalInfo[i].value;
+  				    }
+  				    if (party.partyAdditionalInfo[i].key == "currWeigth") {
+  				       zacetnaTeza = party.partyAdditionalInfo[i].value;
+  				    }
+  				  }
+  				  //console.log(ciljnaTeza);
+  				  
+  				  $.ajax({
+        		  url: baseUrl + "/view/" + ehrId + "/" + "weight",
+        	    type: 'GET',
+        	    headers: {"Ehr-Session": sessionId},
+        	    success: function (res) {
+        	    	if (res.length > 0) {
+        	    	  prevDate = new Date("1900-01-01T01:01Z")
+        	        for (var i in res) {
+        	          currDate = new Date(res[i].time);
+        	          if (currDate > prevDate) {
+        	            prevDate = currDate;
+        	            latestWeight = res[i].weight;
+        	          }
+        	        }
+        	        //console.log(ciljnaTeza);
+        	        //console.log(latestWeight);
+        	        
+        	        if ((latestWeight-ciljnaTeza) <= 0) {
+                	  procent = 100;
+                	} else {
+                	  procent = 100-((latestWeight-ciljnaTeza)*100/(zacetnaTeza-ciljnaTeza));
+                	}
+                	console.log(procent);
+                	
+                	$("#fillgauge1").remove();
+                	var results = "<svg id='fillgauge1' width='97%' height='250'></svg>";
+                	$("#gaugeParent").append(results);
+                	
+                	var gauge1 = loadLiquidFillGauge("fillgauge1", procent);
+                	
+        	    	} 
+        	    },
+        	    error: function() {
+        	      console.log("Error")
+        	    }
+        	});
+  				  
 	    	},
 	    	error: function(err) {
 	    		console.log("Error on getting latest date weight")
 	    	}
 		});
+		/*$.ajax({
+		    url: baseUrl + "/view/" + ehrId + "/" + "weight",
+	    type: 'GET',
+	    headers: {"Ehr-Session": sessionId},
+	    success: function (res) {
+	    	if (res.length > 0) {
+	    	  prevDate = new Date("1900-01-01T01:01Z")
+	        for (var i in res) {
+	          currDate = new Date(res[i].time);
+	          if (currDate > prevDate) {
+	            prevDate = currDate;
+	            latestWeight = res[i].weight;
+	          }
+	        }
+	        console.log(ciljnaTeza);
+	        console.log(latestWeight);
+	    	} 
+	    },
+	    error: function() {
+	      console.log("Error")
+	    }
+	});*/
+	//console.log("ciljna teza je "+ ciljnaTeza);
+	//console.log("latest weight je "+ latestWeight);
+	/*
+	if ((latestWeight-ciljnaTeza) <= 0) {
+	  procent = 100;
+	} else {
+	  procent = latestWeight*100/(latestWeight-ciljnaTeza);
 	}
-	latestWeight = 50;
-	console.log(latestWeight);
+	*/
+	//console.log(procent);
 	
+	}
+	//console.log(latestWeight);
+	
+	//latestWeight = 50;
+	/*
 	$("#fillgauge1").remove();
 	var results = "<svg id='fillgauge1' width='97%' height='250'></svg>";
 	$("#gaugeParent").append(results);
 	
-	var gauge1 = loadLiquidFillGauge("fillgauge1", latestWeight);
+	var gauge1 = loadLiquidFillGauge("fillgauge1", procent);
+	*/
 }
