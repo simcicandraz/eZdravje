@@ -32,25 +32,16 @@ function getSessionId() {
  */
 function generirajPodatke(stPacienta) {
   var ehrId = "";
-  var ime, priimek, starost, visina, ciljnaTeza, trenTeza, datum;
+  var dodatek;
   switch(stPacienta) {
     case 1:
-      ehrId = "12345678-1234-1234-1234-123456789abc";
-      ime = "Janez";
-      priimek = "Novak";
-      starost = 40;
-      visina = 160;
-      ciljnaTeza = 100;
-      
-      
+      kreirajEHRgen("Janez", "Novak", "1962-10-19T08:30Z", "180", "187", "110", stPacienta);
       break;
     case 2:
-      ehrId = "12345678-1234-1234-1234-123456789def";
-      
+      kreirajEHRgen("Mitja", "Kvas", "1980-06-08T09:30Z", "160", "150", "85", stPacienta);
       break;
     case 3:
-      ehrId = "12345678-1234-1234-1234-123456789ghi";
-      
+      kreirajEHRgen("Živa", "Groza", "1979-12-06T11:30Z", "156", "130", "75", stPacienta);
       break;
   }
   return ehrId;
@@ -58,6 +49,99 @@ function generirajPodatke(stPacienta) {
 
 
 // TODO: Tukaj implementirate funkcionalnost, ki jo podpira vaša aplikacija
+
+function kreirajEHRgen(ime, priimek, datumRojstva, visina, zacetnaTeza, ciljnaTeza, stPacienta) {
+	sessionId = getSessionId();
+
+  var dodatek;
+	
+	$.ajaxSetup({
+	    headers: {"Ehr-Session": sessionId}
+	});
+	$.ajax({
+	    url: baseUrl + "/ehr",
+	    type: 'POST',
+	    success: function (data) {
+	        var ehrId = data.ehrId;
+	        var partyData = {
+	            firstNames: ime,
+	            lastNames: priimek,
+	            dateOfBirth: datumRojstva,
+	            partyAdditionalInfo: [{key: "ehrId", value: ehrId},
+	            {key: "height", value: visina},
+	            {key: "currWeigth", value: zacetnaTeza},
+	            {key: "goalWeight", value: ciljnaTeza}
+	            ]
+	        };
+	        $.ajax({
+	            url: baseUrl + "/demographics/party",
+	            type: 'POST',
+	            contentType: 'application/json',
+	            data: JSON.stringify(partyData),
+	            success: function (party) {
+	                if (party.action == 'CREATE') {
+	                    dodatek = "<option value='"+ehrId+"||"+"'>"+ ehrId +"</option></select>";
+                      $("#preberiObstojeciVitalniZnak").append(dodatek);
+                      dodatek = "<option value='"+ehrId+"'>"+ ehrId +"</option></select>";
+                      $("#preberiObstojeciEHR").append(dodatek);
+                      switch(stPacienta) {
+                        case 1:
+                          dodajMeritevTezeGen(ehrId, "2016-01-01T10:10Z", "170");
+                          dodajMeritevTezeGen(ehrId, "2016-02-01T10:10Z", "155");
+                          dodajMeritevTezeGen(ehrId, "2016-03-01T10:10Z", "112");
+                          break;
+                        case 2:
+                          dodajMeritevTezeGen(ehrId, "2016-01-01T10:10Z", "141");
+                          dodajMeritevTezeGen(ehrId, "2016-02-01T10:10Z", "117");
+                          dodajMeritevTezeGen(ehrId, "2016-03-01T10:10Z", "101");
+                          break;
+                        case 3:
+                          dodajMeritevTezeGen(ehrId, "2016-01-01T10:10Z", "109");
+                          dodajMeritevTezeGen(ehrId, "2016-02-01T10:10Z", "88");
+                          dodajMeritevTezeGen(ehrId, "2016-03-01T10:10Z", "75");
+                          break;
+                      }
+	                }
+	            },
+	            error: function(err) {
+	            	console.log("Error");
+	            }
+	        });
+	    }
+	});
+}
+
+function dodajMeritevTezeGen(ehrId, datumInUra, telesnaTeza) {
+	sessionId = getSessionId();
+
+	$.ajaxSetup({
+	    headers: {"Ehr-Session": sessionId}
+	});
+	var podatki = {
+	    "ctx/language": "en",
+	    "ctx/territory": "SI",
+	    "ctx/time": datumInUra,
+	    "vital_signs/body_weight/any_event/body_weight": telesnaTeza
+	};
+	var parametriZahteve = {
+	    ehrId: ehrId,
+	    templateId: 'Vital Signs',
+	    format: 'FLAT',
+	};
+	$.ajax({
+	    url: baseUrl + "/composition?" + $.param(parametriZahteve),
+	    type: 'POST',
+	    contentType: 'application/json',
+	    data: JSON.stringify(podatki),
+	    success: function (res) {
+	        
+	    },
+	    error: function(err) {
+	    	console.log("Napaka pri dodajanju meritev teze.")
+	    }
+	});
+}
+
 
 function kreirajEHR() {
 	sessionId = getSessionId();
@@ -227,7 +311,7 @@ function preberiEHR() {
 
 $(document).ready(function() {
 
-  $('#preberiPredlogoBolnika').change(function() {
+  /*$('#preberiPredlogoBolnika').change(function() {
     $("#kreirajSporocilo").html("");
     var podatki = $(this).val().split("|");
     $("#kreirajIme").val(podatki[0]);
@@ -236,7 +320,7 @@ $(document).ready(function() {
     $("#kreirajVisina").val(podatki[3]);
     $("#kreirajZacetnaTeza").val(podatki[4]);
     $("#kreirajCiljnaTeza").val(podatki[5]);
-  });
+  });*/
 
 	$('#preberiObstojeciEHR').change(function() {
 		$("#preberiSporocilo").html("");
@@ -250,6 +334,12 @@ $(document).ready(function() {
 		$("#dodajMeritevDatumInUra").val(podatki[1]);
 		$("#dodajMeritevTeza").val(podatki[2]);
 	});
+	
+	$("#personGen").click(function() {
+	  generirajPodatke(1);
+	  generirajPodatke(2);
+	  generirajPodatke(3);
+	})
 
 });
 
@@ -323,48 +413,5 @@ function pridobiProcent() {
 	    		console.log("Error on getting latest date weight")
 	    	}
 		});
-		/*$.ajax({
-		    url: baseUrl + "/view/" + ehrId + "/" + "weight",
-	    type: 'GET',
-	    headers: {"Ehr-Session": sessionId},
-	    success: function (res) {
-	    	if (res.length > 0) {
-	    	  prevDate = new Date("1900-01-01T01:01Z")
-	        for (var i in res) {
-	          currDate = new Date(res[i].time);
-	          if (currDate > prevDate) {
-	            prevDate = currDate;
-	            latestWeight = res[i].weight;
-	          }
-	        }
-	        console.log(ciljnaTeza);
-	        console.log(latestWeight);
-	    	} 
-	    },
-	    error: function() {
-	      console.log("Error")
-	    }
-	});*/
-	//console.log("ciljna teza je "+ ciljnaTeza);
-	//console.log("latest weight je "+ latestWeight);
-	/*
-	if ((latestWeight-ciljnaTeza) <= 0) {
-	  procent = 100;
-	} else {
-	  procent = latestWeight*100/(latestWeight-ciljnaTeza);
 	}
-	*/
-	//console.log(procent);
-	
-	}
-	//console.log(latestWeight);
-	
-	//latestWeight = 50;
-	/*
-	$("#fillgauge1").remove();
-	var results = "<svg id='fillgauge1' width='97%' height='250'></svg>";
-	$("#gaugeParent").append(results);
-	
-	var gauge1 = loadLiquidFillGauge("fillgauge1", procent);
-	*/
 }
