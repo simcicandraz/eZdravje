@@ -9,6 +9,8 @@
   </style>
   <script src="knjiznice/js/jquery-2.2.3.min.js"></script>
   <script src="knjiznice/js/bootstrap.min.js"></script>
+  <script src="knjiznice/js/d3.min.js"></script>
+  <script src="knjiznice/js/liquidFillGauge.js" language="JavaScript"></script>
   <script src="knjiznice/js/koda.js"></script>
 </head>
 <body>
@@ -87,9 +89,35 @@
 				</div>
 				<div class="panel-body">
 					<span class="label label-default">EHR ID</span><input id="preberiEHRid" type="text" class="form-control input-mini" placeholder="7b661e12-3a98-21ad-c29e-2dc9f5a3d885">
-					<button type="button" class="btn btn-primary btn-xs" onclick="preberiEHR()">Preberi osnovne podatke o bolniku</button><span id="preberiSporocilo"></span>
+					<button type="button" class="btn btn-primary btn-xs" onclick="preberiEHR();pridobiProcent();">Preberi osnovne podatke o bolniku</button><span id="preberiSporocilo"></span>
 					<div id="rezultatMeritev"></div>
 			  </div>
+			</div>
+		</div>
+		
+		</div>
+		<div class="col-lg-6 col-md-6 col-sm-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="row">
+						<div class="col-lg-8 col-md-8 col-sm-8"><b>Procenti uspešnosti dosega cilja</b></div>
+					</div>
+				</div>
+				<div id="gaugeParent" class="panel-body">
+					<svg id="fillgauge1" width="97%" height="250"></svg>
+					<script language="JavaScript">
+						var gauge1 = loadLiquidFillGauge("fillgauge1", 0);
+				    /*var config1 = liquidFillGaugeDefaultSettings();
+				    config1.circleColor = "#FF7777";
+				    config1.textColor = "#FF4444";
+				    config1.waveTextColor = "#FFAAAA";
+				    config1.waveColor = "#FFDDDD";
+				    config1.circleThickness = 0.2;
+				    config1.textVertPosition = 0.2;
+				    config1.waveAnimateTime = 1000;
+				    */
+				  </script>
+				</div>
 			</div>
 		</div>
 		

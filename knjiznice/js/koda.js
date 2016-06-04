@@ -243,3 +243,54 @@ $(document).ready(function() {
 	});
 
 });
+
+function pridobiProcent() {
+  sessionId = getSessionId();
+
+	var ehrId = $("#preberiEHRid").val();
+	var latestWeight;
+	var lastDate, currDate;
+
+	if (ehrId || ehrId.trim().length != 0) {
+		$.ajax({
+			url: baseUrl + "/demographics/ehr/" + ehrId + "/party",
+	    	type: 'GET',
+	    	headers: {"Ehr-Session": sessionId},
+	    	success: function (data) {
+				var party = data.party;
+				$.ajax({
+					    url: baseUrl + "/view/" + ehrId + "/" + "weight",
+				    type: 'GET',
+				    headers: {"Ehr-Session": sessionId},
+				    success: function (res) {
+				    	if (res.length > 0) {
+				    	    lastDate = new Date(res[0].time);
+				    	    latestWeight = res[0].weight;
+					        for (var i in res) {
+					          currDate = new Date(res[i].time);
+					          if (lastDate < currDate) {
+					            lastDate = currDate;
+					            latestWeight = res[i].weigth;
+					          }
+					        }
+				    	}
+				    },
+				    error: function() {
+				    	console.log("Error on getting latest date weight")
+				    }
+				});
+	    	},
+	    	error: function(err) {
+	    		console.log("Error on getting latest date weight")
+	    	}
+		});
+	}
+	latestWeight = 50;
+	console.log(latestWeight);
+	
+	$("#fillgauge1").remove();
+	var results = "<svg id='fillgauge1' width='97%' height='250'></svg>";
+	$("#gaugeParent").append(results);
+	
+	var gauge1 = loadLiquidFillGauge("fillgauge1", latestWeight);
+}
