@@ -321,7 +321,6 @@ $(document).ready(function() {
     $("#kreirajZacetnaTeza").val(podatki[4]);
     $("#kreirajCiljnaTeza").val(podatki[5]);
   });*/
-
 	$('#preberiObstojeciEHR').change(function() {
 		$("#preberiSporocilo").html("");
 		$("#preberiEHRid").val($(this).val());
