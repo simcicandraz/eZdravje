@@ -45,7 +45,10 @@
           </div>
           <div class="panel-body">
             <!-- ZAČETEK: Opis ideje, ki jo aplikacija podpira -->
-            <p>Spletna stran za aktiven pristop k hujšanju pacientov s prekomerno telesno težo s pomočjo sodelovanja v skupini. Stran pripomore k sodelovanju, medsebojnem spodbujanju in primerjanju uspešnosti pri doseganju ciljev. Skupino vodi zdravnik, ki spremlja stanje parametrov pacientov. Za vsakega se določi ciljna teža in se s tedenskimi vnosi podatkov preverja napredek. Končni uporabniki so torej pacienti, ki morajo shujšati iz zdravstvenih razlogov. Namen uporabe pa je povečanje uspešnosti hujšanja z medsebojno podporo in vzpodbujanjem pacientov v skupini pod nadzorom zdravnika. </p>
+            <p>Spletna stran za aktiven pristop k hujšanju pacientov s prekomerno telesno težo s pomočjo sodelovanja v skupini. Stran pripomore k sodelovanju, medsebojnem spodbujanju in primerjanju uspešnosti pri doseganju ciljev. Tako zdravnik, ki spremlja stanje parametrov pacientov, kot tudi vsi sodelujoči, lahko preverjajo napredek tudi preko grafičnega prikaza uspešnosti hujšanja glede na začrtani cilj. Za vsakega se določi ciljna teža in se s tedenskimi vnosi podatkov preverja napredek. 
+                Končni uporabniki so torej pacienti, ki morajo shujšati iz zdravstvenih razlogov. 
+                Namen uporabe pa je povečanje uspešnosti hujšanja z medsebojno podporo in vzpodbujanjem pacientov v skupini pod nadzorom zdravnika.
+            </p>
             <!-- KONEC: Opis ideje, ki jo aplikacija podpira -->
           </div>
         </div>
@@ -65,7 +68,7 @@
           </div>
           <div class="panel-body">
             <!-- ZAČETEK: Master/detail načrtovalski vzorec -->
-            <p><strong>TO-DO</strong>: Na tem mestu morate navesti uporabljen master/detail načrtovalski vzorec in na kakšen način ga nameravate uporabiti.</p>
+            <p>Master-detail je v aplikaciji implementiran na način, da se podrobni podatki o meritvah teže uporabnikov prikažejo šele na zahtevo iz master strani. V nasprotnem primeru bi bilo že ob samem pristopu na stran lahko prevelika količina podatkov.</p>
             <!-- KONEC: Master/detail načrtovalski vzorec -->
           </div>
         </div>
@@ -75,7 +78,7 @@
           </div>
           <div class="panel-body">
             <!-- ZAČETEK: Uporabljeni zunanji viri podatkov -->
-            <p><strong>TO-DO</strong>: Na tem mestu je potrebno navesti uporabljeno tehniko vizualizacije podatkov (za pomoč lahko uporabite primer iz <a href="https://github.com/mbostock/d3/wiki/Gallery" target="_blank">D3.js galerije</a>) in zakaj je bila ta tehnika izbrana.</p>
+            <p>Za vizualizacijo podatkov sem izbral graf D3 Liquid Fill Gauge iz knjižnice D3.js. Izbral sem ga zato, ker na zelo plastičen način prikaže napredek posameznega uporabnika pri hujšanju glede na začrtane začetne cilje.</p>
             <!-- KONEC: Uporabljeni zunanji viri podatkov -->
           </div>
         </div>
